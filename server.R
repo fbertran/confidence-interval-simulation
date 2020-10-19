@@ -82,12 +82,8 @@ shinyServer(function(input, output, session) {
       intervals[[41]] <<- NULL # cut off top
 
       # Update histogram
-      barheight <<- barheight + ((seq(input$mean-input$stdev,
-                                      input$mean+input$stdev,
-                                      length.out=500) > intervals[[1]][1]) &
-                                   (seq(input$mean-input$stdev,
-                                        input$mean+input$stdev,
-                                        length.out=500) < intervals[[1]][2]))
+      barheight <<- barheight + ((input$mean > intervals[[1]][1]) &
+                                   (input$mean < intervals[[1]][2]))
       # Normalise the histogram
       cumulatives <<- cumulatives + 1
       barnorm <<- barheight / cumulatives
@@ -112,7 +108,8 @@ shinyServer(function(input, output, session) {
             ylab="Proportion of CIs that include value",
             main="How often is a value inside the CI?",
             cex.lab=1.5, cex.main=1.5)
-    
+    text(250, unique(barnorm)/2, labels=format(unique(barnorm),digits = 3), xpd = TRUE, col = "blue")
+
     # Add a reference line at 95%
     lines(c(150, 400),c(confidence,confidence),
           lwd=2,col='red' )
@@ -120,11 +117,7 @@ shinyServer(function(input, output, session) {
          pos=4, col=c('red'))
     axis(1,
          at = 50 + c(0, 125, 250, 375, 500),
-         labels = c(expression(paste('-', sigma)),
-                    expression(paste(sigma, '/2')),
-                    expression(mu),
-                    expression(paste(sigma, '/2')),
-                    expression(paste(sigma))),
+         labels = c("","","","",""),
          cex.axis=2)
     if(input$running){
       if(stepping){
